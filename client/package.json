@@ -22,8 +22,10 @@
     "next": "15.1.2",
     "numeral": "^2.0.6",
     "react": "^19.0.0",
+    "react-countup": "^6.5.3",
     "react-dom": "^19.0.0",
     "react-redux": "^9.2.0",
+    "react-slidedown": "^2.4.7",
     "recharts": "^2.15.0",
     "redux-persist": "^6.0.0",
     "uuid": "^11.0.3"
@@ -31,8 +33,10 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@types/node": "^20.17.10",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
+    "@types/react": "^19.0.4",
+    "@types/react-countup": "^4.3.0",
+    "@types/react-dom": "^19.0.2",
+    "@types/react-scroll": "^1.8.10",
     "eslint": "^9",
     "eslint-config-next": "15.1.2",
     "postcss": "^8",

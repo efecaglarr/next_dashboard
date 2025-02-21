@@ -1,0 +1,7 @@
+@import '../styles/landing-globals.css';
+
+@import '../styles/dashboard-globals.css';
+
+html {
+  scroll-behavior: smooth;
+}

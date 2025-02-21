@@ -1,0 +1,229 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  userId      String   @id @default(uuid())
+  username    String   @unique
+  email       String   @unique
+  password    String
+  phoneNumber String?
+  avatar      String?
+  role        Role     @default(USER)
+  status      Status   @default(ACTIVE)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  employee Employee?
+  tenant   Tenant?
+  reviews  ProductReview[]
+
+  @@map("users")
+}
+
+model Employee {
+  employeeId          String @id @default(uuid())
+  userId      String @unique
+  tenantId    String
+  name        String
+  phoneNumber String
+
+  // Relations
+  user   User            @relation(fields: [userId], references: [userId])
+  tenant Tenant          @relation(fields: [tenantId], references: [tenantId])
+  shifts EmployeeShift[]
+
+  @@map("employees")
+}
+
+model EmployeeShift {
+  employeeShiftid         String @id @default(uuid())
+  shiftDay   String
+  startTime  String
+  endTime    String
+  employeeId String
+
+  // Relations
+  employee Employee @relation(fields: [employeeId], references: [employeeId])
+
+  @@map("employee_shifts")
+}
+
+model Customer {
+  customerId          String   @id @default(uuid())
+  tenantId    String
+  email       String   @unique
+  name        String
+  phoneNumber String   @map("phone_number")
+  confirmed   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  tenant Tenant @relation(fields: [tenantId], references: [tenantId])
+
+  @@map("customers")
+}
+
+model Tenant {
+  tenantId          String @id @default(uuid())
+  userId      String @unique
+  name        String
+  subDomain   String @unique
+  phoneNumber String
+  plan        String
+
+  // Relations
+  user           User              @relation(fields: [userId], references: [userId])
+  employees      Employee[]
+  customers      Customer[]
+  products       Product[]
+  expenses       Expense[]
+  expenseSummary ExpenseSummary?
+  purchases      PurchaseSummary[]
+  sales          SalesSummary[]
+
+  @@map("tenants")
+}
+
+model Product {
+  productId     String @id @default(uuid())
+  name          String
+  price         Float
+  rating        Float?
+  stockQuantity Int
+  tenantId      String
+
+  // Relations
+  tenant    Tenant          @relation(fields: [tenantId], references: [tenantId])
+  reviews   ProductReview[]
+  sales     Sale[]
+  purchases Purchase[]
+
+  @@map("products")
+}
+
+model ProductReview {
+  productReviewId          String @id @default(uuid())
+  userId      String
+  productId   String
+  star        Int
+  description String
+
+  // Relations
+  user    User    @relation(fields: [userId], references: [userId])
+  product Product @relation(fields: [productId], references: [productId])
+
+  @@map("product_reviews")
+}
+
+model Sale {
+  saleId          String   @id @default(uuid())
+  productId   String
+  timestamp   DateTime @default(now())
+  quantity    Int
+  unitPrice   Decimal  @db.Decimal(10, 2)
+  totalAmount Decimal  @db.Decimal(10, 2)
+
+  // Relations
+  product Product @relation(fields: [productId], references: [productId])
+
+  @@map("sales")
+}
+
+model Purchase {
+  purchaseId        String   @id @default(uuid())
+  productId String
+  timestamp DateTime @default(now())
+  quantity  Int
+  unitCost  Decimal  @db.Decimal(10, 2)
+  totalCost Decimal  @db.Decimal(10, 2)
+
+  // Relations
+  product Product @relation(fields: [productId], references: [productId])
+
+  @@map("purchases")
+}
+
+model PurchaseSummary {
+  purchaseSummaryId               String   @id @default(uuid())
+  totalPurchased   Decimal  @db.Decimal(10, 2)
+  changePercentage Decimal  @db.Decimal(5, 2)
+  date             DateTime
+  tenantId         String
+
+  // Relations
+  tenant Tenant @relation(fields: [tenantId], references: [tenantId])
+
+  @@map("purchase_summaries")
+}
+
+model SalesSummary {
+  salesSummaryId               String   @id @default(uuid())
+  totalValue       Decimal  @db.Decimal(10, 2)
+  changePercentage Decimal  @db.Decimal(5, 2)
+  date             DateTime
+  tenantId         String
+
+  // Relations
+  tenant Tenant @relation(fields: [tenantId], references: [tenantId])
+
+  @@map("sales_summaries")
+}
+
+model Expense {
+  expenseId        String   @id @default(uuid())
+  tenantId  String
+  category  String
+  amount    Decimal  @db.Decimal(10, 2)
+  timestamp DateTime @default(now())
+
+  // Relations
+  tenant Tenant @relation(fields: [tenantId], references: [tenantId])
+
+  @@map("expenses")
+}
+
+model ExpenseSummary {
+  expenseSummaryId            String   @id @default(uuid())
+  totalExpenses Decimal  @db.Decimal(10, 2)
+  date          DateTime
+  tenantId      String   @unique
+
+  // Relations
+  tenant            Tenant              @relation(fields: [tenantId], references: [tenantId])
+  ExpenseByCategory ExpenseByCategory[]
+
+  @@map("expense_summaries")
+}
+
+model ExpenseByCategory {
+  expenseByCategoryId               String   @id @default(uuid())
+  expenseSummaryId String
+  category         String
+  amount           Decimal  @db.Decimal(10, 2)
+  date             DateTime @default(now())
+
+  // Relations
+  expenseSummary ExpenseSummary @relation(fields: [expenseSummaryId], references: [expenseSummaryId])
+
+  @@map("expense_by_category")
+}
+
+enum Role {
+  USER
+  ADMIN
+  EMPLOYEE
+}
+
+enum Status {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}

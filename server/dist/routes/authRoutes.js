@@ -11,4 +11,6 @@ router.post("/register", authController_1.register);
 router.post("/createAdmin", verifyToken_1.requireAdmin, authController_1.createAdmin);
 router.post("/login", authController_1.login);
 router.post("/logout", authController_1.logout);
+router.get('/google', authController_1.googleAuth);
+router.get('/google/callback', authController_1.googleCallback);
 exports.default = router;

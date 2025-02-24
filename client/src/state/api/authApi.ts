@@ -32,5 +32,25 @@ export const userApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Auth"],
     }),
+
+    initiateGoogleAuth: build.query<{ url: string }, void>({
+      query: () => "/auth/google",
+    }),
+
+    handleGoogleCallback: build.mutation<{ token: string; user: User }, string>({
+      query: (code) => ({
+        url: `/auth/google/callback?code=${code}`,
+        method: "GET",
+      }),
+    }),
   }),
 });
+
+export const {
+  useLoginMutation,
+  useRegisterMutation,
+  useGetCurrentUserQuery,
+  useUpdateUserMutation,
+  useInitiateGoogleAuthQuery,
+  useHandleGoogleCallbackMutation,
+} = userApi;

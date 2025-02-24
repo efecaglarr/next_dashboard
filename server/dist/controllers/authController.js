@@ -23,10 +23,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.logout = exports.login = exports.register = exports.createAdmin = void 0;
+exports.googleCallback = exports.googleAuth = exports.logout = exports.login = exports.register = exports.createAdmin = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const prisma_1 = require("../lib/prisma");
+const google_config_1 = require("../config/google.config");
 const createAdmin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { username, email, password } = req.body;
     try {
@@ -80,6 +81,9 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         });
         if (!user)
             return res.status(401).json({ message: "Invalid credentials!" });
+        if (!user.password) {
+            return res.status(401).json({ message: "Invalid credentials!" });
+        }
         const isPasswordValid = yield bcrypt_1.default.compare(password, user.password);
         if (!isPasswordValid)
             return res.status(401).json({ message: "Invalid credentials!" });
@@ -114,3 +118,52 @@ const logout = (req, res) => {
     res.clearCookie("token").status(200).json({ message: "Logout successful!" });
 };
 exports.logout = logout;
+const googleAuth = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const redirectUrl = google_config_1.googleClient.generateAuthUrl({
+        scope: ['email', 'profile'],
+    });
+    res.json({ url: redirectUrl });
+});
+exports.googleAuth = googleAuth;
+const googleCallback = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { code } = req.query;
+    if (!code || typeof code !== 'string') {
+        return res.redirect(`${process.env.CLIENT_URL}/login?error=InvalidCode`);
+    }
+    try {
+        const { tokens } = yield google_config_1.googleClient.getToken(code);
+        const ticket = yield google_config_1.googleClient.verifyIdToken({
+            idToken: tokens.id_token,
+            audience: process.env.GOOGLE_CLIENT_ID,
+        });
+        const payload = ticket.getPayload();
+        if (!payload || !payload.email) {
+            return res.redirect(`${process.env.CLIENT_URL}/login?error=InvalidPayload`);
+        }
+        let user = yield prisma_1.prisma.user.findUnique({
+            where: { email: payload.email },
+        });
+        if (!user) {
+            user = yield prisma_1.prisma.user.create({
+                data: {
+                    email: payload.email,
+                    username: payload.name || payload.email.split('@')[0],
+                    googleId: payload.sub,
+                    avatar: payload.picture || null,
+                    role: 'USER',
+                },
+            });
+        }
+        const token = jsonwebtoken_1.default.sign({ id: user.userId, isAdmin: user.role === 'ADMIN' }, process.env.JWT_SECRET_KEY, { expiresIn: '7d' });
+        res.cookie('token', token, {
+            httpOnly: true,
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        });
+        res.redirect(`${process.env.CLIENT_URL}/dashboard`);
+    }
+    catch (error) {
+        console.error('Google auth error:', error);
+        res.redirect(`${process.env.CLIENT_URL}/login?error=GoogleAuthFailed`);
+    }
+});
+exports.googleCallback = googleCallback;

@@ -26,6 +26,19 @@ export const loginUser = createAsyncThunk(
   }
 );
 
+export const handleGoogleCallback = createAsyncThunk(
+  "auth/googleCallback",
+  async (code: string) => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/google/callback?code=${code}`);
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      throw error;
+    }
+  }
+);
+
 export const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -56,6 +69,11 @@ export const authSlice = createSlice({
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.error.message || "Login failed";
+      })
+      .addCase(handleGoogleCallback.fulfilled, (state, action) => {
+        state.user = action.payload.user;
+        state.token = action.payload.token;
+        state.isLoading = false;
       });
   },
 });

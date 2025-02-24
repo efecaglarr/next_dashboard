@@ -11,6 +11,7 @@ const helmet_1 = __importDefault(require("helmet"));
 const morgan_1 = __importDefault(require("morgan"));
 /* ROUTE IMPORTS */
 const dashboardRoutes_1 = __importDefault(require("./routes/dashboardRoutes"));
+const authRoutes_1 = __importDefault(require("./routes/authRoutes"));
 /* CONFIGURATIONS */
 dotenv_1.default.config();
 const app = (0, express_1.default)();
@@ -23,6 +24,7 @@ app.use(body_parser_1.default.urlencoded({ extended: false }));
 app.use((0, cors_1.default)());
 /* GENERAL ROUTES */
 app.use("/dashboard", dashboardRoutes_1.default); // Optional for non-subdomain access
+app.use("/auth", authRoutes_1.default);
 app.get("/hello", (req, res) => {
     res.send("Hello world");
 });

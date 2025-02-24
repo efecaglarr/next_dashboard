@@ -6,6 +6,7 @@ import helmet from "helmet";
 import morgan from "morgan";
 /* ROUTE IMPORTS */
 import dashboardRoutes from "./routes/dashboardRoutes";
+import authRoutes from "./routes/authRoutes";
 
 /* CONFIGURATIONS */
 dotenv.config();
@@ -20,6 +21,7 @@ app.use(cors());
 
 /* GENERAL ROUTES */
 app.use("/dashboard", dashboardRoutes); // Optional for non-subdomain access
+app.use("/auth", authRoutes);
 app.get("/hello", (req, res) => {
   res.send("Hello world");
 });

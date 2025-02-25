@@ -39,32 +39,33 @@ export const createAdmin = async (req: AuthenticatedRequest, res: Response) => {
 };
 
 export const deleteUser = async (req: AuthenticatedRequest, res: Response) => {
-  const { username, email, password } = req.body;
+  const { userId } = req.params; // Assuming the user ID is passed as a URL parameter
 
   try {
-    // Ensuring only authorized users can create admin accounts
-    if (!req.user || !(req.user.role === "ADMIN")) {
+    // Ensuring only authorized users (Admins) can delete accounts
+    if (!req.user || req.user.role !== "ADMIN") {
       return res.status(403).json({ message: "Access denied. Admins only." });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const newAdmin = await prisma.user.create({
-      data: {
-        username,
-        email,
-        password: hashedPassword,
-        role: "ADMIN",
-      },
+    const user = await prisma.user.findUnique({
+      where: { userId },
     });
 
-    console.log(newAdmin);
-    res.status(201).json({ message: "Admin account created successfully." });
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    await prisma.user.delete({
+      where: { userId },
+    });
+
+    res.status(200).json({ message: "User deleted successfully." });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Failed to create admin account." });
+    res.status(500).json({ message: "Failed to delete user." });
   }
 };
+
 
 export const register = async (req: Request, res: Response) => {
   const { username, email, password } = req.body;

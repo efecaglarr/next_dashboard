@@ -5,10 +5,17 @@ export interface User {
   role: "USER" | "ADMIN" | "TENANT";
 }
 
-export interface UserCredentials {
-  email: string;
+export interface UserLoginCredentials {
+  emailOrUsername: string;
   password: string;
   role: "USER" | "ADMIN" | "TENANT";
+}
+
+export interface UserRegistrationCredentials {
+  email: string;
+  password: string;
+  username: string;
+  role: "USER"
 }
 
 export interface AuthState {

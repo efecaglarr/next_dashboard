@@ -2,22 +2,22 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
-  const token = request.cookies.get('token');
-  const isAuthPage = request.nextUrl.pathname.match(/\/(login|register)$/);
-  
-  // If trying to access auth pages while logged in, redirect to dashboard
-  if (token && isAuthPage) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
+  // Allow access to login and register pages without any redirects
+  if (request.nextUrl.pathname.match(/\/(login|register)$/)) {
+    return NextResponse.next();
   }
+
+  const token = request.cookies.get('token');
   
-  // If trying to access protected routes without token, redirect to login
-  if (!token && request.nextUrl.pathname.startsWith('/dashboard') && !isAuthPage) {
+  // Only protect dashboard routes that aren't login/register
+  if (!token && request.nextUrl.pathname.startsWith('/dashboard')) {
     return NextResponse.redirect(new URL('/dashboard/login', request.url));
   }
 
   return NextResponse.next();
 }
 
+// Add config to specify which paths to run middleware on
 export const config = {
-  matcher: '/dashboard/:path*',
-}; 
+  matcher: '/dashboard/:path*'
+} 

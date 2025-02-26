@@ -89,11 +89,16 @@ export const register = async (req: Request, res: Response) => {
 };
 
 export const login = async (req: Request, res: Response) => {
-  const { username, password } = req.body;
+  const { emailOrUsername, password } = req.body;
 
   try {
-    const user = await prisma.user.findUnique({
-      where: { username },
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: emailOrUsername },
+          { username: emailOrUsername }
+        ]
+      },
     });
 
     if (!user) return res.status(401).json({ message: "Invalid credentials!" });
@@ -106,36 +111,31 @@ export const login = async (req: Request, res: Response) => {
     if (!isPasswordValid)
       return res.status(401).json({ message: "Invalid credentials!" });
 
-    const age = 1000 * 3600 * 24 * 7; // 7 days
-
-    const isAdmin = user.role === "ADMIN";
-    
-    if (!process.env.JWT_SECRET_KEY) {
-      return res
-        .status(500)
-        .json({ message: "Server error: Missing JWT secret." });
-    }
     const token = jwt.sign(
       {
         id: user.userId,
-        isAdmin, // Add isAdmin to the token
+        isAdmin: user.role === "ADMIN",
       },
-      process.env.JWT_SECRET_KEY,
-      { expiresIn: age }
+      process.env.JWT_SECRET_KEY!,
+      { expiresIn: '7d' }
     );
 
-    const { password: userPassword, ...userInfo } = user;
+    const { password: _, ...userWithoutPassword } = user;
 
     res
       .cookie("token", token, {
         httpOnly: true,
-        // secure: true // Uncomment this in production for HTTPS
-        maxAge: age,
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        sameSite: 'strict',
+        secure: process.env.NODE_ENV === 'production',
       })
       .status(200)
-      .json(userInfo);
+      .json({
+        user: userWithoutPassword,
+        token
+      });
   } catch (error) {
-    console.log(error);
+    console.error("Login error:", error);
     res.status(500).json({ message: "Failed to login!" });
   }
 };
@@ -145,10 +145,26 @@ export const logout = (req: Request, res: Response) => {
 };
 
 export const googleAuth = async (req: Request, res: Response) => {
-  const redirectUrl = googleClient.generateAuthUrl({
-    scope: ['email', 'profile'],
-  });
-  res.json({ url: redirectUrl });
+  try {
+    if (!process.env.GOOGLE_CLIENT_ID) {
+      throw new Error('Google Client ID not configured');
+    }
+
+    const redirectUrl = googleClient.generateAuthUrl({
+      access_type: 'offline',
+      scope: [
+        'https://www.googleapis.com/auth/userinfo.profile',
+        'https://www.googleapis.com/auth/userinfo.email'
+      ],
+      include_granted_scopes: true,
+      prompt: 'consent'
+    });
+
+    res.json({ url: redirectUrl });
+  } catch (error) {
+    console.error('Google auth error:', error);
+    res.status(500).json({ message: 'Failed to initialize Google authentication' });
+  }
 };
 
 export const googleCallback = async (req: Request, res: Response) => {

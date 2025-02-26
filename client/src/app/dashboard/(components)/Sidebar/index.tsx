@@ -5,11 +5,9 @@ import {
   Archive,
   CircleDollarSign,
   Clipboard,
-  Icon,
   Layout,
   LucideIcon,
   Menu,
-  Settings,
   SlidersHorizontal,
   User,
 } from "lucide-react";

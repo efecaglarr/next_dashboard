@@ -32,8 +32,8 @@ const createNoopStorage = () => {
     getItem() {
       return Promise.resolve(null);
     },
-    setItem(value: string) { 
-      return Promise.resolve(value);
+    setItem() {
+      return Promise.resolve();
     },
     removeItem() {
       return Promise.resolve();
@@ -50,7 +50,7 @@ const storage =
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["global"],
+  whitelist: ["global", "auth"],
 };
 const rootReducer = combineReducers({
   global: globalReducer,

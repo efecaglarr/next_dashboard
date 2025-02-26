@@ -1,9 +1,9 @@
 import { baseApi } from "./baseApi";
-import { User, UserCredentials } from "../types";
+import { User, UserLoginCredentials, UserRegistrationCredentials } from "../types";
 
 export const userApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
-    login: build.mutation<{ token: string; user: User }, UserCredentials>({
+    login: build.mutation<{ token: string; user: User }, UserLoginCredentials>({
       query: (credentials) => ({
         url: "/auth/login",
         method: "POST",
@@ -11,7 +11,7 @@ export const userApi = baseApi.injectEndpoints({
       }),
     }),
 
-    register: build.mutation<{ token: string; user: User }, UserCredentials>({
+    register: build.mutation<{ token: string; user: User }, UserRegistrationCredentials>({
       query: (credentials) => ({
         url: "/auth/register",
         method: "POST",
@@ -43,6 +43,13 @@ export const userApi = baseApi.injectEndpoints({
         method: "GET",
       }),
     }),
+
+    logout: build.mutation<{ message: string }, void>({
+      query: () => ({
+        url: "/auth/logout",
+        method: "POST",
+      }),
+    }),
   }),
 });
 
@@ -53,4 +60,5 @@ export const {
   useUpdateUserMutation,
   useInitiateGoogleAuthQuery,
   useHandleGoogleCallbackMutation,
+  useLogoutMutation
 } = userApi;

@@ -4,6 +4,7 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
+import cookieParser from 'cookie-parser';
 
 /* ROUTE IMPORTS */
 import dashboardRoutes from "./routes/dashboardRoutes";
@@ -12,13 +13,19 @@ import authRoutes from "./routes/authRoutes";
 /* CONFIGURATIONS */
 dotenv.config();
 const app = express();
+app.use(cookieParser());
 app.use(express.json());
 app.use(helmet());
 app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
 app.use(morgan("common"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cors());
+app.use(cors({
+  origin: process.env.CLIENT_URL || 'http://localhost:3000',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 /* GENERAL ROUTES */
 app.use("/dashboard", dashboardRoutes); // Optional for non-subdomain access

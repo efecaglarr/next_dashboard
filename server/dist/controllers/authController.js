@@ -23,7 +23,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.googleCallback = exports.googleAuth = exports.logout = exports.login = exports.register = exports.createAdmin = void 0;
+exports.googleCallback = exports.googleAuth = exports.logout = exports.login = exports.register = exports.deleteUser = exports.createAdmin = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const prisma_1 = require("../lib/prisma");
@@ -53,6 +53,30 @@ const createAdmin = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     }
 });
 exports.createAdmin = createAdmin;
+const deleteUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { userId } = req.params; // Assuming the user ID is passed as a URL parameter
+    try {
+        // Ensuring only authorized users (Admins) can delete accounts
+        if (!req.user || req.user.role !== "ADMIN") {
+            return res.status(403).json({ message: "Access denied. Admins only." });
+        }
+        const user = yield prisma_1.prisma.user.findUnique({
+            where: { userId },
+        });
+        if (!user) {
+            return res.status(404).json({ message: "User not found." });
+        }
+        yield prisma_1.prisma.user.delete({
+            where: { userId },
+        });
+        res.status(200).json({ message: "User deleted successfully." });
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Failed to delete user." });
+    }
+});
+exports.deleteUser = deleteUser;
 const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { username, email, password } = req.body;
     try {
@@ -74,10 +98,15 @@ const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.register = register;
 const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { username, password } = req.body;
+    const { emailOrUsername, password } = req.body;
     try {
-        const user = yield prisma_1.prisma.user.findUnique({
-            where: { username },
+        const user = yield prisma_1.prisma.user.findFirst({
+            where: {
+                OR: [
+                    { email: emailOrUsername },
+                    { username: emailOrUsername }
+                ]
+            },
         });
         if (!user)
             return res.status(401).json({ message: "Invalid credentials!" });
@@ -87,29 +116,26 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const isPasswordValid = yield bcrypt_1.default.compare(password, user.password);
         if (!isPasswordValid)
             return res.status(401).json({ message: "Invalid credentials!" });
-        const age = 1000 * 3600 * 24 * 7; // 7 days
-        const isAdmin = user.role === "ADMIN";
-        if (!process.env.JWT_SECRET_KEY) {
-            return res
-                .status(500)
-                .json({ message: "Server error: Missing JWT secret." });
-        }
         const token = jsonwebtoken_1.default.sign({
             id: user.userId,
-            isAdmin, // Add isAdmin to the token
-        }, process.env.JWT_SECRET_KEY, { expiresIn: age });
-        const { password: userPassword } = user, userInfo = __rest(user, ["password"]);
+            isAdmin: user.role === "ADMIN",
+        }, process.env.JWT_SECRET_KEY, { expiresIn: '7d' });
+        const { password: _ } = user, userWithoutPassword = __rest(user, ["password"]);
         res
             .cookie("token", token, {
             httpOnly: true,
-            // secure: true // Uncomment this in production for HTTPS
-            maxAge: age,
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+            sameSite: 'strict',
+            secure: process.env.NODE_ENV === 'production',
         })
             .status(200)
-            .json(userInfo);
+            .json({
+            user: userWithoutPassword,
+            token
+        });
     }
     catch (error) {
-        console.log(error);
+        console.error("Login error:", error);
         res.status(500).json({ message: "Failed to login!" });
     }
 });
@@ -119,10 +145,25 @@ const logout = (req, res) => {
 };
 exports.logout = logout;
 const googleAuth = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const redirectUrl = google_config_1.googleClient.generateAuthUrl({
-        scope: ['email', 'profile'],
-    });
-    res.json({ url: redirectUrl });
+    try {
+        if (!process.env.GOOGLE_CLIENT_ID) {
+            throw new Error('Google Client ID not configured');
+        }
+        const redirectUrl = google_config_1.googleClient.generateAuthUrl({
+            access_type: 'offline',
+            scope: [
+                'https://www.googleapis.com/auth/userinfo.profile',
+                'https://www.googleapis.com/auth/userinfo.email'
+            ],
+            include_granted_scopes: true,
+            prompt: 'consent'
+        });
+        res.json({ url: redirectUrl });
+    }
+    catch (error) {
+        console.error('Google auth error:', error);
+        res.status(500).json({ message: 'Failed to initialize Google authentication' });
+    }
 });
 exports.googleAuth = googleAuth;
 const googleCallback = (req, res) => __awaiter(void 0, void 0, void 0, function* () {

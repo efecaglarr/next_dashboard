@@ -6,6 +6,7 @@ import {
   register,
   googleAuth,
   googleCallback,
+  deleteUser,
 } from "../controllers/authController";
 import { requireAdmin } from "../middleware/verifyToken";
 
@@ -19,7 +20,9 @@ router.post(
   requireAdmin as express.RequestHandler,
   createAdmin as express.RequestHandler
 );
-router.post("/delete", logout as express.RequestHandler);
+router.post("/delete", 
+  requireAdmin as express.RequestHandler,
+  deleteUser as express.RequestHandler);
 router.get('/google', googleAuth);
 router.get('/google/callback', googleCallback);
 

@@ -7,29 +7,32 @@ import { useLoginMutation } from "@/state/api/authApi";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 import { ErrorMessage } from "@/components/common/ErrorMessage";
 import { GoogleAuthButton } from "@/components/auth/GoogleAuthButton";
-import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import { AuthLayout } from "@/components/auth/AuthLayout";
+import { AuthInput } from "@/components/auth/AuthInput";
+import { motion } from "framer-motion";
+import { useDispatch } from "react-redux";
+import { setStateCredentials } from "@/state/slices/auth/authSlice";
 
-interface ErrorResponse {
-  data: {
-    message: string;
-  };
-}
+
 
 const LoginPage = () => {
   const [credentials, setCredentials] = useState({
-    email: "",
+    emailOrUsername: "",
     password: "",
     role: "USER" as const
   });
+  
   const router = useRouter();
+  const dispatch = useDispatch();
   const [login, { isLoading, error }] = useLoginMutation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const result = await login(credentials).unwrap();
-      if (result) {
-        router.push("/dashboard");
+      if (result?.user && result?.token) {
+        dispatch(setStateCredentials(result));
+        router.replace("/dashboard");
       }
     } catch (err) {
       console.error("Login failed:", err);
@@ -49,76 +52,69 @@ const LoginPage = () => {
   if (isLoading) return <LoadingSpinner />;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow">
-        <div className="text-center">
-          <h2 className="text-3xl font-bold text-gray-900">Sign in</h2>
-          <p className="mt-2 text-sm text-gray-600">
-            Or{" "}
-            <Link href="/dashboard/register" className="text-blue-600 hover:underline">
-              create an account
-            </Link>
-          </p>
-        </div>
+    <AuthLayout 
+      title="Welcome Back"
+      subtitle={
+        <>
+          New here?{" "}
+          <Link href="/dashboard/register" className="text-blue-600 hover:text-blue-800 font-medium">
+            Create an account
+          </Link>
+        </>
+      }
+    >
+      {error && <ErrorMessage message="Invalid credentials" />}
 
-        {error && (
-          <ErrorMessage 
-            message={
-              ((error as FetchBaseQueryError) as ErrorResponse).data?.message || 
-              "Login failed"
+      <motion.form 
+        onSubmit={handleSubmit}
+        className="mt-8 space-y-6"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.4 }}
+      >
+        <div className="space-y-4">
+          <AuthInput
+            type="text"
+            placeholder="Email or Username"
+            value={credentials.emailOrUsername}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+              setCredentials({ ...credentials, emailOrUsername: e.target.value })
             }
           />
-        )}
-
-        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <input
-                type="email"
-                required
-                value={credentials.email}
-                onChange={(e) => setCredentials({ ...credentials, email: e.target.value })}
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Email address"
-              />
-            </div>
-            <div>
-              <input
-                type="password"
-                required
-                value={credentials.password}
-                onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
-              />
-            </div>
-          </div>
-
-          <div>
-            <button
-              type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              Sign in
-            </button>
-          </div>
-        </form>
-
-        <div className="mt-6">
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">Or continue with</span>
-            </div>
-          </div>
-
-          <GoogleAuthButton onClick={handleGoogleLogin} text="Sign in with Google" />
+          <AuthInput
+            type="password"
+            placeholder="Password"
+            value={credentials.password}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+              setCredentials({ ...credentials, password: e.target.value })
+            }
+          />
         </div>
-      </div>
-    </div>
+
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          type="submit"
+          className="w-full py-3 px-4 bg-blue-600 text-white rounded-lg font-medium
+            hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+            transform transition-all duration-200"
+        >
+          Sign in
+        </motion.button>
+
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-300" />
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-2 bg-white text-gray-500">Or continue with</span>
+          </div>
+        </div>
+
+        <GoogleAuthButton onClick={handleGoogleLogin} text="Sign in with Google" />
+      </motion.form>
+    </AuthLayout>
   );
 };
 
-export default LoginPage; 
+export default LoginPage;

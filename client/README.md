@@ -1,36 +1,174 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Next Dashboard
 
-## Getting Started
+A full-stack dashboard application for managing business operations, inventory, and analytics.
 
-First, run the development server:
+## 🚀 Tech Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+### Frontend
+- Next.js 15.1.2
+- React 19.0.0
+- TypeScript
+- Redux Toolkit for state management
+- Material UI components
+- Tailwind CSS for styling
+- Recharts for data visualization
+
+### Backend
+- Express.js
+- Prisma ORM
+- PostgreSQL
+- JWT for authentication
+- TypeScript
+
+## 📋 Features
+
+### Authentication & Authorization
+- User registration and login
+- Role-based access control (User, Admin, Employee)
+- JWT token-based authentication
+- Protected routes
+
+### Dashboard Features
+- Popular products tracking
+- Sales analytics and summaries
+- Purchase tracking and analytics
+- Expense management and categorization
+- Real-time metrics and statistics
+
+### Data Management
+- Product management
+- Customer management
+- Employee management with shift tracking
+- Multi-tenant architecture
+- Expense tracking and categorization
+
+### Amazon Fulfillment Features (Planned for Future Updates)
+- Integration with Amazon API for fulfillment operations
+- Order management and tracking for Amazon orders
+- Inventory synchronization with Amazon listings
+- Automated processing of ASIN (Amazon Standard Identification Number) codes
+- Real-time stock updates and shipment tracking
+
+## 🏗️ Project Structure
+
+```
+next-dashboard/
+├── client/               # Frontend Next.js application
+│   ├── public/           # Static assets
+│   ├── src/
+│   │   ├── app/         # Next.js app directory
+│   │   ├── components/  # Reusable components
+│   │   ├── hooks/       # Custom hooks
+│   │   ├── state/       # Redux state management
+│   │   ├── styles/      # Global styles
+│   │   ├── utils/       # Helper functions
+│   │   ├── pages/       # Next.js pages
+│   ├── package.json     # Frontend dependencies
+│   └── tsconfig.json    # TypeScript configuration
+│
+├── server/               # Backend Express application
+│   ├── src/
+│   │   ├── controllers/  # Route controllers
+│   │   ├── middleware/   # Express middleware
+│   │   ├── routes/       # API routes
+│   │   ├── services/     # Business logic services
+│   │   ├── utils/        # Utility functions
+│   │   ├── config/       # Configuration files
+│   ├── prisma/           # Database schema and migrations
+│   ├── package.json      # Backend dependencies
+│   ├── tsconfig.json     # TypeScript configuration
+│   └── .env              # Environment variables
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 Getting Started
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Clone the repository
+2. Install dependencies:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+# Install frontend dependencies
+cd client
+npm install
 
-## Learn More
+# Install backend dependencies
+cd ../server
+npm install
+```
 
-To learn more about Next.js, take a look at the following resources:
+3. Set up environment variables:
+   - Create `.env` file in server directory
+   - Create `.env.local` file in client directory
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+4. Set up the database:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+cd server
+npx prisma migrate dev
+```
 
-## Deploy on Vercel
+5. Start the development servers:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+# Start backend server
+cd server
+npm run dev
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# Start frontend development server
+cd client
+npm run dev
+```
+
+## 📄 License
+
+This project is licensed under the ISC License.
+
+## 📝 Database Schema
+
+The application uses a comprehensive database schema including:
+- Users and authentication
+- Multi-tenant architecture
+- Products and inventory
+- Sales and purchase tracking
+- Customer management
+- Employee management
+- Expense tracking
+
+## 🔒 Security Features
+
+- JWT-based authentication
+- Password hashing with bcrypt
+- Protected API routes
+- Role-based access control
+- HTTP-only cookies for token storage
+
+## 🛠️ Development Scripts
+
+### Frontend
+```bash
+npm run dev      # Start development server
+npm run build    # Build production bundle
+npm run start    # Start production server
+npm run lint     # Run ESLint
+```
+
+### Backend
+```bash
+npm run dev      # Start development server
+npm run build    # Build TypeScript files
+npm run start    # Start production server
+npm run seed     # Seed database with initial data
+```
+
+## 📦 Dependencies
+
+For detailed dependencies, please refer to:
+- Frontend: `client/package.json`
+- Backend: `server/package.json`
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Open a pull request

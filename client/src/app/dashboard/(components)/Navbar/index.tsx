@@ -1,8 +1,18 @@
 "use client";
 import { useAppDispatch, useAppSelector } from "@/state/store";
-import { setIsDarkMode, setIsSidebarCollapsed } from "@/state/slices/global/globalSlice";
-import { Bell, MenuIcon, Moon, Settings, Sun, LogOut } from "lucide-react";
-import Link from "next/link";
+import {
+  setIsDarkMode,
+  setIsSidebarCollapsed,
+} from "@/state/slices/global/globalSlice";
+import {
+  // Bell,
+  MenuIcon,
+  Moon,
+  // Settings,
+  Sun,
+  LogOut,
+} from "lucide-react";
+// import Link from "next/link";
 import { selectUser } from "@/state/slices/auth/selectors";
 import { useLogoutMutation } from "@/state/api/authApi";
 import { useRouter } from "next/navigation";
@@ -21,7 +31,7 @@ const Navbar = () => {
   const toggleSidebar = () => {
     dispatch(setIsSidebarCollapsed(!isSidebarCollapsed));
   };
-  
+
   const toggleDarkMode = () => {
     dispatch(setIsDarkMode(!isDarkMode));
   };
@@ -30,9 +40,9 @@ const Navbar = () => {
     try {
       await logoutMutation().unwrap();
       dispatch(logout());
-      router.push('/dashboard/login');
+      router.push("/dashboard/login");
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.error("Logout failed:", error);
     }
   };
 
@@ -64,7 +74,7 @@ const Navbar = () => {
             <Moon className="cursor-pointer text-gray-500" size={24} />
           )}
         </button>
-        
+
         <div className="flex items-center gap-4">
           <span className="text-sm font-medium text-gray-700">
             {user?.username || user?.email}

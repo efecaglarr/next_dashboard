@@ -11,6 +11,7 @@ import {
   SlidersHorizontal,
   User,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React from "react";
@@ -59,6 +60,7 @@ const Sidebar = () => {
   const isSidebarCollapsed = useAppSelector(
     (state) => state.global.isSidebarCollapsed
   );
+  const isDarkMode = useAppSelector((state) => state.global.isDarkMode);
 
   const toggleSidebar = () => {
     dispatch(setIsSidebarCollapsed(!isSidebarCollapsed));
@@ -76,14 +78,15 @@ const Sidebar = () => {
           isSidebarCollapsed ? "px-5" : "px-8"
         }`}
       >
-        <div>Logo</div>
-        <h1
+        <Image
           className={`font-extrabold text-2xl ${
             isSidebarCollapsed ? "hidden" : "block"
           }`}
-        >
-          CAGLAR
-        </h1>
+          src={isDarkMode ? "/images/fbm-w.png" : "/images/fbm-b.png"}
+          alt="logo"
+          width={50}
+          height={50}
+        />
 
         <button
           className="md:hidden px-3 py-3 bg-gray-100 rounded-full hover:bg-blue-100"

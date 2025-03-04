@@ -8,6 +8,7 @@ import { selectIsAuthenticated, selectToken } from "@/state/slices/auth/selector
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
+import MuiThemeProvider from "./theme-provider";
 
 // Separate the layout component that uses Redux hooks
 const DashboardContent = ({ children }: { children: React.ReactNode }) => {
@@ -58,7 +59,7 @@ const DashboardContent = ({ children }: { children: React.ReactNode }) => {
           <h2 className="text-2xl font-bold mb-4">Please log in to continue</h2>
           <div className="space-x-4">
             <Link
-              href="/dashboard/login"
+              href="/login"
               className="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
             >
               Login
@@ -100,7 +101,9 @@ const DashboardContent = ({ children }: { children: React.ReactNode }) => {
 const DashboardWrapper = ({ children }: { children: React.ReactNode }) => {
   return (
     <StoreProvider>
-      <DashboardContent>{children}</DashboardContent>
+      <MuiThemeProvider>
+        <DashboardContent>{children}</DashboardContent>
+      </MuiThemeProvider>
     </StoreProvider>
   );
 };

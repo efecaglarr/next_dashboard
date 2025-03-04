@@ -40,7 +40,7 @@ const Navbar = () => {
     try {
       await logoutMutation().unwrap();
       dispatch(logout());
-      router.push("/dashboard/login");
+      router.push("/login");
     } catch (error) {
       console.error("Logout failed:", error);
     }

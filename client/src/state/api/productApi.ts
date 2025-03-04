@@ -3,10 +3,10 @@ import { Product, NewProduct, QueryParams } from "../types";
 
 export const productApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
-    getProducts: build.query<Product[], QueryParams>({
-      query: (params) => ({
+    getProducts: build.query<Product[], QueryParams | void>({
+      query: (search) => ({
         url: "/products",
-        params,
+        params: search ? { search } : {},
       }),
       providesTags: ["Products"],
     }),
@@ -50,3 +50,11 @@ export const productApi = baseApi.injectEndpoints({
     }),
   }),
 });
+
+export const {
+  useGetProductsQuery,
+  useGetProductQuery,
+  useCreateProductMutation,
+  useUpdateProductMutation,
+  useDeleteProductMutation,
+} = productApi;

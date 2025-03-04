@@ -8,23 +8,36 @@ interface CustomRequest extends Request {
 }
 
 export const getProducts = async (
-  req: Request,
+  req: CustomRequest,
   res: Response
 ): Promise<void> => {
   try {
+    if (!req.userId) {
+      res.status(401).json({ message: "Unauthorized - User ID missing" });
+      return;
+    }
+
     const search = req.query.search?.toString();
     const products = await prisma.product.findMany({
-      // if i have query it'll search for it if i don't it'll give all the products
       where: {
-        name: {
-          contains: search,
-        },
+        tenantId: req.userId,
+        ...(search && {
+          name: {
+            contains: search,
+          },
+        }),
       },
     });
 
-    res.status(201).json(products);
+    res.status(200).json(products);
   } catch (error) {
-    res.status(500).json({ message: "Error retrieving products!" });
+    console.error('Product retrieval error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    res.status(500).json({ 
+      message: "Error retrieving products!", 
+      error: errorMessage,
+      userId: req.userId 
+    });
   }
 };
 
@@ -35,15 +48,15 @@ export const createProduct = async (
   try {
     const { productId, name, price, rating, stockQuantity } = req.body;
     if (!req.userId) {
-      res.status(400).json({ message: "tenantId is missing" });
-      return; 
+      res.status(400).json({ message: "userId is missing" });
+      return;
     }
     const tenantId = req.userId; // no need for non-null assertion
-
 
     const product = await prisma.product.create({
       data: { productId, name, price, rating, stockQuantity, tenantId },
     });
+    res.status(201).json(product);
   } catch (error) {
     res.status(500).json({ message: "Error creating product!" });
   }

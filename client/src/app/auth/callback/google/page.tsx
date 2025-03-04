@@ -19,7 +19,7 @@ const GoogleCallback = () => {
         })
         .catch((error: Error) => {
           console.error("Google callback failed:", error);
-          router.push("/dashboard/login?error=google-auth-failed");
+          router.push("/login?error=google-auth-failed");
         });
     }
   }, [handleCallback, router, searchParams]);

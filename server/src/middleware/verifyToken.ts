@@ -12,19 +12,24 @@ export const verifyToken = (
 ) => {
   const token = req.cookies.token;
 
-  if (!token) return res.status(401).json({ message: "Not Authenticated!" });
+  if (!token) {
+    res.status(401).json({ message: "Not Authenticated!" });
+    return;
+  }
 
   if (!process.env.JWT_SECRET_KEY) {
-    return res
-      .status(500)
-      .json({ message: "Server error: Missing JWT secret." });
+    res.status(500).json({ message: "Server error: Missing JWT secret." });
+    return;
   }
 
   jwt.verify(
     token,
     process.env.JWT_SECRET_KEY,
     async (err: jwt.VerifyErrors | null, payload: any) => {
-      if (err) return res.status(403).json({ message: "Not Valid Token!" });
+      if (err) {
+        res.status(403).json({ message: "Not Valid Token!" });
+        return;
+      }
       req.userId = (payload as { id: string }).id;
       next();
     }

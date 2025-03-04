@@ -26,7 +26,7 @@ const RegisterPage = () => {
     e.preventDefault();
     try {
       await register(credentials).unwrap();
-      router.push("/dashboard/login?registered=true");
+      router.push("/login?registered=true");
     } catch (err) {
       console.error("Registration failed:", err);
     }
@@ -50,7 +50,7 @@ const RegisterPage = () => {
       subtitle={
         <>
           Already have an account?{" "}
-          <Link href="/dashboard/login" className="text-blue-600 hover:text-blue-800 font-medium">
+          <Link href="/login" className="text-blue-600 hover:text-blue-800 font-medium">
             Sign in
           </Link>
         </>
@@ -134,4 +134,4 @@ const RegisterPage = () => {
   );
 };
 
-export default RegisterPage;
+export default RegisterPage; 

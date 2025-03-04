@@ -9,6 +9,7 @@ import cookieParser from 'cookie-parser';
 /* ROUTE IMPORTS */
 import dashboardRoutes from "./routes/dashboardRoutes";
 import authRoutes from "./routes/authRoutes";
+import productRoutes from "./routes/productRoutes";
 
 /* CONFIGURATIONS */
 dotenv.config();
@@ -28,11 +29,9 @@ app.use(cors({
 }));
 
 /* GENERAL ROUTES */
-app.use("/dashboard", dashboardRoutes); // Optional for non-subdomain access
-app.use("/auth", authRoutes);
-app.get("/hello", (req, res) => {
-  res.send("Hello world");
-});
+app.use("/dashboard", dashboardRoutes); // http://localhost:8000/dashboard Optional for non-subdomain access
+app.use("/auth", authRoutes); // http://localhost:8000/auth
+app.use("/products", productRoutes); // http://localhost:8000/products
 
 /* SERVER */
 const port = process.env.PORT || 3001;

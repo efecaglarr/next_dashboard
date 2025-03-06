@@ -219,6 +219,7 @@ model ExpenseByCategory {
 
 enum Role {
   USER
+  TENANT
   ADMIN
   EMPLOYEE
 }

@@ -10,11 +10,11 @@ interface AuthLayoutProps {
 
 export const AuthLayout = ({ children, title, subtitle, className }: AuthLayoutProps) => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white p-4">
+    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900 p-4">
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className={`max-w-xl w-full space-y-8 bg-white p-10 rounded-2xl shadow-xl ${className || ''}`}
+        className={`max-w-xl w-full space-y-8 bg-white dark:bg-gray-900 p-10 rounded-2xl shadow-xl ${className || ''}`}
       >
         <div className="text-center">
           <Image
@@ -22,13 +22,13 @@ export const AuthLayout = ({ children, title, subtitle, className }: AuthLayoutP
             width={140}
             height={50}
             alt="Logo"
-            className="mx-auto mb-8"
+            className="mx-auto mb-8 dark:invert"
           />
           <motion.h2 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="text-4xl font-bold text-gray-900"
+            className="text-4xl font-bold text-gray-900 dark:text-white"
           >
             {title}
           </motion.h2>
@@ -36,7 +36,7 @@ export const AuthLayout = ({ children, title, subtitle, className }: AuthLayoutP
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="mt-3 text-base text-gray-600"
+            className="mt-3 text-base text-gray-600 dark:text-gray-400"
           >
             {subtitle}
           </motion.p>

@@ -1,3 +1,5 @@
+"use client";
+
 import { useRef } from "react";
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import {
@@ -25,6 +27,7 @@ import globalReducer from "@/state/slices/global/globalSlice";
 import authReducer from "./slices/auth/authSlice";
 import productReducer from "./slices/product/productSlice";
 import customerReducer from "./slices/customer/customerSlice";
+import tenantReducer from "./slices/tenant/tenantSlice";
 
 /* REDUX PERSISTENCE */
 const createNoopStorage = () => {
@@ -50,13 +53,14 @@ const storage =
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["global", "auth"],
+  whitelist: ["global", "auth", "tenant"],
 };
 const rootReducer = combineReducers({
   global: globalReducer,
   auth: authReducer,
   product: productReducer,
   customer: customerReducer,
+  tenant: tenantReducer,
   [baseApi.reducerPath]: baseApi.reducer,
 });
 const persistedReducer = persistReducer(persistConfig, rootReducer);

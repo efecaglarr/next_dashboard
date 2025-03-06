@@ -26,6 +26,8 @@ export const AuthInput = ({ type, placeholder, value, onChange, required = true,
           focus:ring-2 focus:ring-blue-500 focus:border-transparent
           transition-all duration-200 ease-in-out
           placeholder-gray-400 bg-white/50
+          dark:bg-gray-800 dark:border-gray-600 dark:text-white
+          dark:placeholder-gray-500 dark:focus:ring-blue-500
           ${className}
         `}
         placeholder={placeholder}

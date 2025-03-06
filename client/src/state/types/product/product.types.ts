@@ -5,6 +5,7 @@ export interface Product {
   rating?: number;
   stockQuantity: number;
   reviews: ProductReview[];
+  tenantId?: string;
 }
 
 export interface ProductState {
@@ -26,4 +27,11 @@ export interface NewProduct {
   name: string;
   price: number;
   stockQuantity: number;
+  rating?: number;
+  tenantId?: string;
+}
+
+export interface QueryParams {
+  search?: string;
+  tenantId?: string;
 }

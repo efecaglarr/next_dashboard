@@ -1,20 +1,16 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 import DashboardWrapper from "./dashboardWrapper";
 
-const inter = Inter({ subsets: ["latin"] });
+export const metadata: Metadata = {
+  title: "Dashboard - Fulfillment by us",
+  description: "Dashboard for managing your inventory and orders",
+};
 
-export default function RootLayout({
+export default function DashboardLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en">
-      <body className={inter.className}>
-        <DashboardWrapper>{children}</DashboardWrapper>
-      </body>
-    </html>
-  );
+  return <DashboardWrapper>{children}</DashboardWrapper>;
 }

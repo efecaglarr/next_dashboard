@@ -93,19 +93,20 @@ const LoginPage = () => {
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           type="submit"
-          className="w-full py-3 px-4 bg-blue-600 text-white rounded-lg font-medium
-            hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-            transform transition-all duration-200"
+          className="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 
+            flex items-center justify-center gap-2 border border-blue-600
+            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+            transform transition-all duration-200 font-medium"
         >
           Sign in
         </motion.button>
 
         <div className="relative my-6">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-300" />
+            <div className="w-full border-t border-gray-300/70 dark:border-gray-600/70" />
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-white text-gray-500">Or continue with</span>
+            <span className="px-4 text-gray-500 bg-[#ffffff] dark:bg-gray-900">Or continue with</span>
           </div>
         </div>
 

@@ -8,8 +8,12 @@ import {
   Layout,
   LucideIcon,
   Menu,
-  SlidersHorizontal,
-  User,
+  Users,
+  Building,
+  ShoppingBag,
+  BarChart,
+  Settings,
+  Home
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -61,6 +65,7 @@ const Sidebar = () => {
     (state) => state.global.isSidebarCollapsed
   );
   const isDarkMode = useAppSelector((state) => state.global.isDarkMode);
+  const user = useAppSelector((state) => state.auth.user);
 
   const toggleSidebar = () => {
     dispatch(setIsSidebarCollapsed(!isSidebarCollapsed));
@@ -69,6 +74,89 @@ const Sidebar = () => {
   const sideBarClassNames = `fixed flex flex-col ${
     isSidebarCollapsed ? "w-0 md:w-16" : "w-72 md:w-64"
   } bg-white transition-all duration-300 overflow-hidden h-full shadow-md z-40`;
+
+  // Define navigation links based on user role
+  const getNavigationLinks = () => {
+    // Common links for all users
+    const commonLinks = [
+      {
+        href: "/dashboard",
+        icon: Home,
+        label: "Dashboard",
+      },
+      {
+        href: "/dashboard/settings",
+        icon: Settings,
+        label: "Settings",
+      },
+    ];
+
+    // Admin-specific links
+    if (user?.role === "ADMIN") {
+      return [
+        ...commonLinks,
+        {
+          href: "/dashboard/users",
+          icon: Users,
+          label: "Users",
+        },
+        {
+          href: "/dashboard/tenants",
+          icon: Building,
+          label: "Tenants",
+        },
+        {
+          href: "/dashboard/products",
+          icon: ShoppingBag,
+          label: "Products",
+        },
+        {
+          href: "/dashboard/analytics",
+          icon: BarChart,
+          label: "Analytics",
+        },
+      ];
+    }
+
+    // Tenant-specific links
+    if (user?.role === "TENANT") {
+      return [
+        ...commonLinks,
+        {
+          href: "/dashboard/inventory",
+          icon: Archive,
+          label: "Inventory",
+        },
+        {
+          href: "/dashboard/products",
+          icon: Clipboard,
+          label: "Products",
+        },
+        {
+          href: "/dashboard/orders",
+          icon: ShoppingBag,
+          label: "Orders",
+        },
+        {
+          href: "/dashboard/expenses",
+          icon: CircleDollarSign,
+          label: "Expenses",
+        },
+      ];
+    }
+
+    // Regular user links
+    return [
+      ...commonLinks,
+      {
+        href: "/dashboard/demo",
+        icon: Layout,
+        label: "Demo",
+      },
+    ];
+  };
+
+  const navigationLinks = getNavigationLinks();
 
   return (
     <div className={sideBarClassNames}>
@@ -96,44 +184,26 @@ const Sidebar = () => {
         </button>
       </div>
 
+      {/* USER ROLE INDICATOR */}
+      {!isSidebarCollapsed && user && (
+        <div className="mt-6 px-8">
+          <div className="bg-blue-50 text-blue-700 py-2 px-4 rounded-md text-sm font-medium">
+            {user.role === "ADMIN" ? "Admin" : user.role === "TENANT" ? "Business Owner" : "User"}
+          </div>
+        </div>
+      )}
+
       {/* LINKS */}
       <div className="flex-grow mt-8">
-        <SideBarLink
-          href="/dashboard"
-          icon={Layout}
-          label="Dashboard"
-          isCollapsed={isSidebarCollapsed}
-        />
-        <SideBarLink
-          href="/inventory"
-          icon={Archive}
-          label="Inventory"
-          isCollapsed={isSidebarCollapsed}
-        />
-        <SideBarLink
-          href="/products"
-          icon={Clipboard}
-          label="Products"
-          isCollapsed={isSidebarCollapsed}
-        />
-        <SideBarLink
-          href="/users"
-          icon={User}
-          label="Users"
-          isCollapsed={isSidebarCollapsed}
-        />
-        <SideBarLink
-          href="/settings"
-          icon={SlidersHorizontal}
-          label="Settings"
-          isCollapsed={isSidebarCollapsed}
-        />
-        <SideBarLink
-          href="/expenses"
-          icon={CircleDollarSign}
-          label="Expenses"
-          isCollapsed={isSidebarCollapsed}
-        />
+        {navigationLinks.map((link) => (
+          <SideBarLink
+            key={link.href}
+            href={link.href}
+            icon={link.icon}
+            label={link.label}
+            isCollapsed={isSidebarCollapsed}
+          />
+        ))}
       </div>
 
       {/* FOOTER */}

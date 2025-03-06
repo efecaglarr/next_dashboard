@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useRegisterMutation } from "@/state/api/authApi";
+import { useAppDispatch } from "@/state/store";
+import { setStateCredentials, setTenantRegistration } from "@/state/slices/auth/authSlice";
 import { LoadingSpinner } from "@/app/(components)/Common/LoadingSpinner";
 import { ErrorMessage } from "@/app/(components)/Common/ErrorMessage";
 import { GoogleAuthButton } from "@/app/(components)/Auth/GoogleAuthButton";
@@ -16,17 +18,33 @@ const RegisterPage = () => {
     email: "",
     password: "",
     username: "",
-    role: "USER" as const
+    role: "USER" as const,
+    isTenant: false
   });
   
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const [register, { isLoading, error }] = useRegisterMutation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await register(credentials).unwrap();
-      router.push("/login?registered=true");
+      const result = await register(credentials).unwrap();
+      
+      // Store user data in Redux
+      dispatch(setStateCredentials({
+        user: result.user,
+        token: result.token,
+        isTenant: credentials.isTenant
+      }));
+      
+      // If registering as a tenant, redirect to tenant registration
+      if (credentials.isTenant) {
+        dispatch(setTenantRegistration(true));
+        router.push("/register/tenant");
+      } else {
+        router.push("/login?registered=true");
+      }
     } catch (err) {
       console.error("Registration failed:", err);
     }
@@ -90,25 +108,39 @@ const RegisterPage = () => {
               setCredentials({ ...credentials, password: e.target.value })
             }
           />
+          
+          <div className="flex items-center mt-4">
+            <input
+              id="isTenant"
+              type="checkbox"
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              checked={credentials.isTenant}
+              onChange={(e) => setCredentials({ ...credentials, isTenant: e.target.checked })}
+            />
+            <label htmlFor="isTenant" className="ml-2 block text-sm text-gray-700">
+              Register as a business owner
+            </label>
+          </div>
         </div>
 
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           type="submit"
-          className="w-full py-3 px-4 bg-blue-600 text-white rounded-lg font-medium
-            hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-            transform transition-all duration-200"
+          className="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 
+            flex items-center justify-center gap-2 border border-blue-600
+            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+            transform transition-all duration-200 font-medium"
         >
           Create Account
         </motion.button>
 
         <div className="relative my-6">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-300" />
+            <div className="w-full border-t border-gray-300/70 dark:border-gray-600/70" />
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-white text-gray-500">Or continue with</span>
+            <span className="px-4 text-gray-500 bg-[#ffffff] dark:bg-gray-900">Or continue with</span>
           </div>
         </div>
 

@@ -68,7 +68,7 @@ export const deleteUser = async (req: AuthenticatedRequest, res: Response) => {
 
 
 export const register = async (req: Request, res: Response) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, isTenant } = req.body;
 
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -80,8 +80,39 @@ export const register = async (req: Request, res: Response) => {
         password: hashedPassword,
       },
     });
-    console.log(newUser);
-    res.status(201).json({ message: "User created succesfully" });
+
+    // Generate token for the new user
+    const token = jwt.sign(
+      {
+        id: newUser.userId,
+        isAdmin: newUser.role === "ADMIN",
+      },
+      process.env.JWT_SECRET_KEY!,
+      { expiresIn: '7d' }
+    );
+
+    // If the user is registering as a tenant, redirect to tenant creation
+    const response = {
+      message: "User created successfully",
+      user: {
+        userId: newUser.userId,
+        username: newUser.username,
+        email: newUser.email,
+        role: newUser.role
+      },
+      token,
+      isTenant
+    };
+
+    res
+      .cookie("token", token, {
+        httpOnly: true,
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        sameSite: 'strict',
+        secure: process.env.NODE_ENV === 'production',
+      })
+      .status(201)
+      .json(response);
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Failed to create an user" });

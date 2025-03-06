@@ -16,7 +16,8 @@ export interface UserRegistrationCredentials {
   email: string;
   password: string;
   username: string;
-  role: "USER"
+  role: "USER";
+  isTenant?: boolean;
 }
 
 export interface AuthState {
@@ -24,4 +25,5 @@ export interface AuthState {
   token: string | null;
   isLoading: boolean;
   error: string | null;
+  isTenantRegistration?: boolean;
 }
